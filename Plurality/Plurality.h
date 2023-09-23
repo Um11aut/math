@@ -3,100 +3,177 @@
 
 #pragma once
 
-#include <iostream>
-#include <tuple>
-#include <limits>
 #include <vector>
-#include <type_traits>
+#include <iostream>
 #include <algorithm>
+#include <set>
+#include "Helper.h"
 
 namespace math {
-    template<typename S>
-    concept Intable = requires(S a)
-    {
-        { static_cast<int>(a) } -> std::convertible_to<int>;
-        { static_cast<double>(a) } -> std::convertible_to<int>;
-        { static_cast<long>(a) } -> std::convertible_to<int>;
-        { static_cast<float>(a) } -> std::convertible_to<int>;
+    
 
-        //exclude unsigned
-            requires (!std::is_unsigned_v<S>);
-    };
-
-    template<typename ...T>
-    class plurality {
+    template<typename Type>
+    class plurality_set {
     private:
-        std::tuple<T...> data;
+        std::vector<Type> _data;
 
-        template <class T1, class T2> struct equal
-        {
-            static_assert(std::is_same_v<T1, T2>, "types are not the same");
-        };
+        template<class ...Ts>
+        void fill(Ts... args) {
+            (_data.push_back(args), ...);
+        }
+
+        void print() const {
+            std::for_each(this->_data.begin(), this->_data.end(), [](const Type& value) {
+                std::cout << value << " ";
+                });
+            std::cout << std::endl;
+        }
     public:
-        explicit plurality(T... args) : data(std::make_tuple(args...)) {}
+        template<class ...T>
+        explicit plurality_set(T&&... args) {
+            fill(std::forward<T>(args)...);
+        }
 
-        template <typename ...M>
-        explicit plurality(std::tuple<M...> argT) : data(argT) {}
+        explicit plurality_set() = default;
 
-        virtual void print_range() {
-            std::apply(
-                [](auto&&... args) {
-                    ((std::cout << args << " "), ...);
+        explicit plurality_set(std::vector<Type> vec) {
+            this->_data.insert(this->_data.end(), vec.begin(), vec.end());
+        }
+
+        template<class ...Args>
+        void append(Args&&... args) {
+            this->_data.push_back(std::forward<Args>(args)...);
+        }
+
+        bool partOf(plurality_set<Type>* second) {
+            for (const int& elem : this->_data) {
+                if (std::find(second->get_vec().begin(), second->get_vec().end(), elem) == second->get_vec().end()) {
+                    return false;
                 }
-
-            , data);
-        }
-
-        [[nodiscard]] std::tuple<T...> to_tuple() const {
-            return data;
-        }
-
-        size_t size() {
-            return sizeof...(T);
-        }
-
-        template <typename... U>
-        plurality<T..., U...> operator+(const plurality<U...>& other) const {
-            std::tuple<T..., U...> combined_data = std::tuple_cat(data, other.to_tuple());
-            return plurality<T..., U...>(combined_data);
-        }
-
-        plurality& operator=(const plurality& other) {
-            if (this == other) {
-                return *this;
             }
-            data = other.data;
+            return true;
+        }
+
+        plurality_set operator+(const plurality_set& other) {
+            plurality_set res = *this;
+            for (const auto& value : other._data) {
+                if (std::find(_data.begin(), _data.end(), value) == _data.end()) {
+                    res._data.push_back(value);
+                }
+            }
+
+            return res;
+        }
+
+        plurality_set& operator=(const plurality_set& other) {
+            this->_data = other._data;
             return *this;
         }
 
-        template <typename... U>
-        bool operator==(const plurality<U...>& other) const {
-            if constexpr (sizeof...(T) == sizeof...(U)) {
-                return data == other.to_tuple();
+        plurality_set operator%(const plurality_set& other) {
+            plurality_set res = *this;
+            for (const auto& value : other._data) {
+                res._data.push_back(value);
             }
-            return false;
+            math_helper::removeUnique(res._data);
+            return res;
+        }
+
+        plurality_set operator-(const plurality_set& other) {
+            plurality_set res = *this;
+
+            plurality_set temp = *this;
+            for (const auto& value : other._data) {
+                temp._data.push_back(value);
+            }
+            math_helper::removeUnique(temp._data);
+
+            math_helper::subtract(res._data, temp._data);
+
+            return res;
+        }
+
+        plurality_set operator/(const plurality_set& other) {
+            plurality_set res = *this;
+
+            plurality_set temp = *this;
+            for (const auto& value : other._data) {
+                if (std::find(this->_data.begin(), this->_data.end(), value) == this->_data.end()) {
+                    temp._data.push_back(value);
+                }
+            }
+            res = temp;
+            math_helper::removeUnique(temp._data);
+
+            math_helper::subtract(res._data, temp._data);
+
+            return res;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const plurality_set& t) {
+            t.print();
+            return os;
+        }
+
+        virtual std::vector<Type>& get_vec() {
+            return this->_data;
         }
     };
 
-    template<typename U>
-    class universum : public plurality<> {
+    template<typename Type>
+    class universum : public plurality_set<Type> {
     private:
-        U minVal;
-        U maxVal;
+        std::vector<Type> _data;
+
+        template<class ...Ts>
+        void fill(Ts... args) {
+            (_data.push_back(args), ...);
+        }
+        void print() const {
+            std::for_each(_data.begin(), _data.end(), [](const Type& value) {
+                std::cout << value << " ";
+                });
+            std::cout << std::endl;
+        }
     public:
-        universum() {
-            if constexpr (math::Intable<U>) {
-                minVal = std::numeric_limits<U>::min();
-                maxVal = std::numeric_limits<U>::max();
-            }
-            else {
-                throw std::runtime_error("Use int-like types(or remove unsigned)");
-            }
+        template<class ...T>
+        explicit universum(T&&... args) {
+            fill(std::forward<T>(args)...);
         }
 
-        void print_range() override {
-            std::cout << minVal << " ... " << maxVal << std::endl;
+        std::vector<Type>& get_vec() override {
+            return _data;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const universum& t) {
+            t.print();
+            return os;
         }
     };
 
-} // math
+    template<typename Type>
+    plurality_set<Type> findExtra(universum<Type>* U, plurality_set<Type>* T) {
+        math_helper::subtract<Type>(U->get_vec(), T->get_vec());
+
+        if (!U->get_vec().empty()) {
+            plurality_set<Type> p = plurality_set<Type>(U->get_vec());
+            return p;
+        }
+        else {
+            std::cerr << "Universum must be bigger than plurality" << std::endl;
+        }
+    }
+
+    template<class Arg1, class Arg2>
+    plurality_set<std::pair<Arg1, Arg2>> multiply(plurality_set<Arg1>* a, plurality_set<Arg2>* b) {
+        auto* res = new plurality_set<std::pair<Arg1, Arg2>>();
+
+        for (const auto& elA : a->get_vec()) {
+            for (const auto& elB : b->get_vec()) {
+                res->append(std::make_pair(elA, elB));
+            }
+        }
+
+        return *res;
+    }
+}
