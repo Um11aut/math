@@ -10,8 +10,6 @@
 #include "Helper.h"
 
 namespace math {
-    
-
     template<typename Type>
     class plurality_set {
     private:
@@ -23,7 +21,7 @@ namespace math {
         }
 
         void print() const {
-            std::for_each(this->_data.begin(), this->_data.end(), [](const Type& value) {
+            std::for_each(this->_data.begin(), this->_data.end(), [](const auto& value) {
                 std::cout << value << " ";
                 });
             std::cout << std::endl;
@@ -141,6 +139,18 @@ namespace math {
             fill(std::forward<T>(args)...);
         }
 
+        universum& operator=(const universum& other) {
+            this->_data = other._data;
+            return *this;
+        }
+
+        bool operator==(const universum& other) const {
+            if (this->_data.size() == other._data.size()) {
+                return this->_data == other._data;
+            }
+            return false;
+        }
+
         std::vector<Type>& get_vec() override {
             return _data;
         }
@@ -153,15 +163,20 @@ namespace math {
 
     template<typename Type>
     plurality_set<Type> findExtra(universum<Type>* U, plurality_set<Type>* T) {
-        math_helper::subtract<Type>(U->get_vec(), T->get_vec());
+        auto* U_copy = new plurality_set<Type>(U->get_vec());
+        auto* T_copy = new plurality_set<Type>(T->get_vec());
+        math_helper::subtract<Type>(U_copy->get_vec(), T_copy->get_vec());
 
-        if (!U->get_vec().empty()) {
-            plurality_set<Type> p = plurality_set<Type>(U->get_vec());
-            return p;
+        if (!U_copy->get_vec().empty()) {
+            return *U_copy;
+            delete U_copy;
         }
         else {
             std::cerr << "Universum must be bigger than plurality" << std::endl;
+            return plurality_set<Type>();
         }
+        delete U_copy;
+        delete T_copy;
     }
 
     template<class Arg1, class Arg2>
