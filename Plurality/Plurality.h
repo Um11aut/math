@@ -24,7 +24,6 @@ namespace math {
             std::for_each(this->_data.begin(), this->_data.end(), [](const auto& value) {
                 std::cout << value << " ";
                 });
-            std::cout << std::endl;
         }
     public:
         template<class ...T>
@@ -55,7 +54,7 @@ namespace math {
         plurality_set operator+(const plurality_set& other) {
             plurality_set res = *this;
             for (const auto& value : other._data) {
-                if (std::find(_data.begin(), _data.end(), value) == _data.end()) {
+                if (std::find(this->_data.begin(), this->_data.end(), value) == this->_data.end()) {
                     res._data.push_back(value);
                 }
             }
@@ -70,15 +69,6 @@ namespace math {
 
         plurality_set operator%(const plurality_set& other) {
             plurality_set res = *this;
-            for (const auto& value : other._data) {
-                res._data.push_back(value);
-            }
-            math_helper::removeUnique(res._data);
-            return res;
-        }
-
-        plurality_set operator-(const plurality_set& other) {
-            plurality_set res = *this;
 
             plurality_set temp = *this;
             for (const auto& value : other._data) {
@@ -91,16 +81,26 @@ namespace math {
             return res;
         }
 
+        plurality_set operator-(const plurality_set& other) {
+            plurality_set res = *this;
+
+            for (const auto& value : other._data) {
+                res._data.push_back(value);
+            }
+
+            math_helper::removeUnique(res._data);
+
+            return res;
+        }
+
         plurality_set operator/(const plurality_set& other) {
             plurality_set res = *this;
 
-            plurality_set temp = *this;
+            plurality_set temp = res;
             for (const auto& value : other._data) {
-                if (std::find(this->_data.begin(), this->_data.end(), value) == this->_data.end()) {
-                    temp._data.push_back(value);
-                }
+                temp._data.push_back(value);
             }
-            res = temp;
+
             math_helper::removeUnique(temp._data);
 
             math_helper::subtract(res._data, temp._data);
@@ -152,7 +152,7 @@ namespace math {
         }
 
         std::vector<Type>& get_vec() override {
-            return _data;
+            return this->_data;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const universum& t) {
@@ -169,7 +169,6 @@ namespace math {
 
         if (!U_copy->get_vec().empty()) {
             return *U_copy;
-            delete U_copy;
         }
         else {
             std::cerr << "Universum must be bigger than plurality" << std::endl;
@@ -190,5 +189,6 @@ namespace math {
         }
 
         return *res;
+        delete res;
     }
 }

@@ -39,15 +39,12 @@ namespace math_helper {
     {
         std::unordered_map<T, int> elementCount;
 
-        // Count the occurrences of each element
         for (const T& element : vec) {
             elementCount[element]++;
         }
 
-        // Create a new vector to store the elements with duplicates
         std::vector<T> result;
 
-        // Copy elements with duplicates to the result vector
         for (const auto& pair : elementCount) {
             if (pair.second > 1) {
                 for (int i = 0; i < pair.second; ++i) {
@@ -56,12 +53,10 @@ namespace math_helper {
             }
         }
 
-        // Replace the original vector with the result vector
         vec = std::move(result);
 
         math_helper::filterDuplicates(vec);
     }
-
 
     template<typename T>
     void subtract(std::vector<T>& first, std::vector<T>& second) {
@@ -88,12 +83,11 @@ namespace math_helper {
             int found = 0;
 
 
-            std::cout << element << " = " << vec1[count] << std::endl;
-            if (count < vec1.size()-1 && vec1[count] == element) {
+            if (count < vec1.size() && vec1[count] == element) {
                 found = 1;
                 count++;
             }
-            else if (count > vec1.size() - 1 && vec1.back() == element) {
+            else if (count > vec1.size() && vec1.back() == element) {
                 found = 1;
             }
 
