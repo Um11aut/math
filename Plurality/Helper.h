@@ -1,4 +1,4 @@
-#include <vector>
+﻿#include <vector>
 #include <iostream>
 #include <algorithm>
 #include <unordered_map>
@@ -77,5 +77,29 @@ namespace math_helper {
             std::inserter(result, result.end()));
 
         first = std::vector<T>(result.begin(), result.end());
+    }
+    template<typename T>
+    std::vector<T> compareVectors(const std::vector<T>& vec1, const std::vector<T>& vec2) {
+        std::vector<T> result;
+        int count = 0;
+
+        for (int i = 0; i < vec2.size(); ++i) {
+            int element = vec2[i];
+            int found = 0;
+
+
+            std::cout << element << " = " << vec1[count] << std::endl;
+            if (count < vec1.size()-1 && vec1[count] == element) {
+                found = 1;
+                count++;
+            }
+            else if (count > vec1.size() - 1 && vec1.back() == element) {
+                found = 1;
+            }
+
+            result.push_back(found);
+        }
+
+        return result;
     }
 }

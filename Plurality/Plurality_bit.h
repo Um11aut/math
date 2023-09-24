@@ -14,7 +14,6 @@ namespace math {
         std::vector<Type> _real_data;
 
         void get_real_size() {
-            _real_size = 0;
             for (const auto& el : _data) {
                 if (el != 0) {
                     _real_size++;
@@ -28,27 +27,19 @@ namespace math {
                 });
             std::cout << std::endl;
         }
-        explicit plurality_bit(size_t size, math::universum<Type>* universum) { _data.resize(size); this->_universum = universum; }
+        explicit plurality_bit(size_t size) { _data.resize(size);  }
     public:
         template<typename Arg=Type>
         explicit plurality_bit(math::plurality_set<Arg>* plurality, math::universum<Arg>* universum) {
             this->_universum = universum;
-            this->_data.reserve(_universum->get_vec().size());
 
-            for (const auto& element : _universum->get_vec()) {
-                if (std::find(plurality->get_vec().begin(), plurality->get_vec().end(), element) != plurality->get_vec().end()) {
-                    this->_data.push_back(1);
-                }
-                else {
-                    this->_data.push_back(0);
-                }
-            }
-            std::cout << *plurality;
+            _data = math_helper::compareVectors(plurality->get_vec(), _universum->get_vec());
         }
 
         plurality_bit operator+(const plurality_bit& other) {
             if (this->_universum == other._universum) {
-                plurality_bit* result = new plurality_bit(this->_data.size(), this->_universum);
+                plurality_bit* result = new plurality_bit(this->_data.size());
+                result->_universum = this->_universum;
 
                 for (size_t i = 0; i < this->_data.size(); ++i) {
                     result->_data[i] = this->_data[i] | other._data[i];
@@ -64,7 +55,8 @@ namespace math {
 
         plurality_bit operator-(const plurality_bit& other) {
             if (this->_universum == other._universum) {
-                plurality_bit* result = new plurality_bit(this->_data.size(), this->_universum);
+                plurality_bit* result = new plurality_bit(this->_data.size());
+                result->_universum = this->_universum;
 
                 for (size_t i = 0; i < this->_data.size(); ++i) {
                     result->_data[i] = this->_data[i] & other._data[i];
@@ -80,7 +72,8 @@ namespace math {
 
         plurality_bit operator/(const plurality_bit& other) {
             if (this->_universum == other._universum) {
-                plurality_bit* result = new plurality_bit(this->_data.size(), this->_universum);
+                plurality_bit* result = new plurality_bit(this->_data.size());
+                result->_universum = this->_universum;
 
                 for (size_t i = 0; i < this->_data.size(); ++i) {
                     result->_data[i] = this->_data[i] ^ other._data[i];
@@ -95,11 +88,8 @@ namespace math {
         }
 
         void print_converted() {
-            get_real_size();
-            this->_real_data.resize(this->_real_size);
-
-            for (size_t i = 0; i < this->_real_data.size(); i++) {
-                if (this->_data[i] != 0) {
+            for (size_t i = 0; i < this->_data.size();++i) {
+                if (this->_data[i] == 1) {
                     std::cout << this->_universum->get_vec()[i] << " ";
                 }
             }

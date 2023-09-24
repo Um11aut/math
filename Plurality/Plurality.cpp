@@ -21,6 +21,7 @@ int main() {
     math::universum<int> uC = math::universum<int>(1, 2, 3, 4, 5, 6, 7, 8);
 
     if (A.partOf(&B)) {
+        std::cout << "True" << std::endl;
     }
 
     math::plurality_set<int> ttt = math::findExtra<int>(&U, &B);
@@ -29,14 +30,13 @@ int main() {
     auto AU = math::plurality_bit<int>(&A, &U);
     auto BU = math::plurality_bit<int>(&B, &U);
 
-    std::cout << BU;
-
     auto test1 = AU + BU;
     auto test2 = AU - BU;
     auto test3 = AU / BU;
 
     test1.print_converted();
-
+    test2.print_converted();
+    test3.print_converted();
 
     std::cout << std::endl;
     std::cout << std::endl;
