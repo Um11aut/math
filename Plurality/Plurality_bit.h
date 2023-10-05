@@ -27,7 +27,6 @@ namespace math {
             }
 
             this->_universum = universum;
-
             this->_data = math_helper::compareVectors(plurality->get_vec(), _universum->get_vec());
         }
 
@@ -72,6 +71,23 @@ namespace math {
 
                 for (size_t i = 0; i < this->_data.size(); ++i) {
                     result->_data[i] = this->_data[i] ^ other._data[i];
+                }
+
+                return *result;
+                delete result;
+            }
+            else {
+                std::cerr << "plurality_bit operations can be made only with the same universum!";
+            }
+        }
+
+        plurality_bit operator/(const plurality_bit& other) {
+            if (this->_universum == other._universum) {
+                plurality_bit* result = new plurality_bit(this->_data.size());
+                result->_universum = this->_universum;
+
+                for (size_t i = 0; i < this->_data.size(); ++i) {
+                    result->_data[i] = this->_data[i] & ~other._data[i];
                 }
 
                 return *result;

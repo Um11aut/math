@@ -15,8 +15,23 @@ namespace math_helper {
         { static_cast<float>(a) } -> std::convertible_to<int>;
 
         //exclude unsigned
-            requires (!std::is_unsigned_v<S>);
+        requires (!std::is_unsigned_v<S>);
     };
+
+    template <typename T>
+    void removeDuplicates(std::vector<T>& vec) {
+        std::unordered_map<T, int> countMap;
+
+        // Count occurrences of each element
+        for (const auto& element : vec) {
+            countMap[element]++;
+        }
+
+        // Remove elements with count > 1
+        vec.erase(std::remove_if(vec.begin(), vec.end(),
+            [&countMap](const T& element) { return countMap[element] > 1; }),
+            vec.end());
+    }
 
     template<typename T>
     void filterDuplicates(std::vector<T>& vec)

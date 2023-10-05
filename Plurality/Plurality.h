@@ -10,13 +10,14 @@
 #include "Helper.h"
 
 namespace math {
+
     template<typename Type>
     class plurality_set {
     private:
         std::vector<Type> _data;
 
         template<class ...Ts>
-        void fill(Ts... args) {
+        void fill(Ts&&... args) {
             (_data.push_back(args), ...);
         }
 
@@ -62,23 +63,26 @@ namespace math {
             return res;
         }
 
+        bool operator==(const plurality_set& other) const {
+            if (this->_data.size() == other._data.size()) {
+                return this->_data == other._data;
+            }
+            return false;
+        }
+
         plurality_set& operator=(const plurality_set& other) {
             this->_data = other._data;
             return *this;
         }
 
         plurality_set operator%(const plurality_set& other) {
-            plurality_set res = *this;
-
             plurality_set temp = *this;
             for (const auto& value : other._data) {
                 temp._data.push_back(value);
             }
-            math_helper::removeUnique(temp._data);
+            math_helper::removeDuplicates(temp._data);
 
-            math_helper::subtract(res._data, temp._data);
-
-            return res;
+            return temp;
         }
 
         plurality_set operator-(const plurality_set& other) {
